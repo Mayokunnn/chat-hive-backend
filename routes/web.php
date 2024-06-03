@@ -15,15 +15,16 @@ use App\Events\MessageSent;
 |
 */
 
-$router->get('/', function () use ($router) {
-   broadcast(new MessageSent('Hey'))->toOthers();
-    return $router->app->version();
-});
 
-$router->post('login', ['as'=> 'login','uses'=> 'AuthController@login']);
-$router->post('register', ['as'=> 'register','uses'=> 'AuthController@register']);
 
-$router->group(['middleware' => 'auth'] , function () use ($router) {
-    $router->post('/logout', ['as'=> 'logout','uses'=> 'AuthController@logout']);
+$router->post('login', ['as' => 'login', 'uses' => 'AuthController@login']);
+$router->post('register', ['as' => 'register', 'uses' => 'AuthController@register']);
+
+$router->group(['middleware' => 'auth'], function () use ($router) {
+    $router->post('/logout', ['as' => 'logout', 'uses' => 'AuthController@logout']);
     // Other protected routes
+    $router->get('/', function () use ($router) {
+        broadcast(new MessageSent('Hey'))->toOthers();
+        return $router->app->version();
+    });
 });
