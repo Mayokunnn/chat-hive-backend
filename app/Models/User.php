@@ -18,16 +18,33 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      *
      * @var string[]
      */
-    protected $fillable = [
-        'name', 'email',
+    protected $fillable = ['name', 'email', 'password'];
+    protected $hidden = [
+        'password',
     ];
 
+    public function conversations()
+    {
+        return $this->belongsToMany(Conversation::class, 'conversation_user');
+    }
+
+    public function groupMemberships()
+    {
+        return $this->hasMany(GroupMember::class);
+    }
+
+    public function groups()
+    {
+        return $this->hasManyThrough(Group::class, GroupMember::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
     /**
      * The attributes excluded from the model's JSON form.
      *
      * @var string[]
      */
-    protected $hidden = [
-        'password',
-    ];
 }

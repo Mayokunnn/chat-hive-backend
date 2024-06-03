@@ -7,3 +7,4 @@ Homestead.yaml
 .vscode
 .vs
 /storage
+composer.lock

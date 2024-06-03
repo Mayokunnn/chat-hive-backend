@@ -2,6 +2,8 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
+use App\Events\MessageSent;
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -13,6 +15,16 @@
 |
 */
 
-$router->get('/', function () use ($router) {
-    return $router->app->version();
+
+
+$router->post('login', ['as' => 'login', 'uses' => 'AuthController@login']);
+$router->post('register', ['as' => 'register', 'uses' => 'AuthController@register']);
+
+$router->group(['middleware' => 'auth'], function () use ($router) {
+    $router->post('/logout', ['as' => 'logout', 'uses' => 'AuthController@logout']);
+    // Other protected routes
+    $router->get('/', function () use ($router) {
+        broadcast(new MessageSent('Hey'))->toOthers();
+        return $router->app->version();
+    });
 });

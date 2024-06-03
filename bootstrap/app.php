@@ -48,6 +48,13 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
+$app->singleton(Illuminate\Session\SessionManager::class, function () use ($app) {
+    return $app->loadComponent('session', Illuminate\Session\SessionServiceProvider::class, 'session');
+});
+
+$app->singleton('session.store', function () use ($app) {
+    return $app->loadComponent('session', Illuminate\Session\SessionServiceProvider::class, 'session.store');
+});
 /*
 |--------------------------------------------------------------------------
 | Register Config Files
@@ -60,6 +67,13 @@ $app->singleton(
 */
 
 $app->configure('app');
+$app->configure('broadcasting');
+$app->configure('firebase');
+
+
+
+
+$app->alias('cache', \Illuminate\Cache\CacheManager::class);
 
 /*
 |--------------------------------------------------------------------------
@@ -80,6 +94,11 @@ $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
 ]);
 
+$app->middleware([
+    \Illuminate\Session\Middleware\StartSession::class,
+]);
+
+
 /*
 |--------------------------------------------------------------------------
 | Register Service Providers
@@ -94,6 +113,12 @@ $app->routeMiddleware([
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
+$app->register(Illuminate\Broadcasting\BroadcastServiceProvider::class);
+$app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
+
+// $app->register(Dusterio\LumenPassport\PassportServiceProvider::class);
+
+
 
 /*
 |--------------------------------------------------------------------------
