@@ -22,9 +22,6 @@ $router->post('register', ['as' => 'register', 'uses' => 'AuthController@registe
 
 $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->post('/logout', ['as' => 'logout', 'uses' => 'AuthController@logout']);
-    // Other protected routes
-    $router->get('/', function () use ($router) {
-        broadcast(new MessageSent('Hey'))->toOthers();
-        return $router->app->version();
-    });
+    $router->post('/messages', 'MessageController@sendMessage');
+    $router->get('/messages', 'MessageController@getMessages');
 });

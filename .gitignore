@@ -8,3 +8,4 @@ Homestead.yaml
 .vs
 /storage
 composer.lock
+/firebase_credentials.json

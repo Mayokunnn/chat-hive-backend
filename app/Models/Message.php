@@ -2,13 +2,18 @@
 
 
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\Model;
 
 class Message extends Model
 {
-    protected $fillable = ['content', 'user_id', 'conversation_id'];
+
+    use HasFactory;
+    protected $fillable = [
+        'conversation_id', 'sender_id', 'type', 'content', 'url'
+    ];
 
 
     // Relationships
@@ -22,4 +27,3 @@ class Message extends Model
         return $this->belongsTo(User::class, 'sender_id');
     }
 }
-
