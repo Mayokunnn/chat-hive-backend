@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__.'/../vendor/autoload.php';
+require_once __DIR__.'/../app/helpers.php';
+
 
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
     dirname(__DIR__)
@@ -116,7 +118,7 @@ $app->register(App\Providers\EventServiceProvider::class);
 $app->register(Illuminate\Broadcasting\BroadcastServiceProvider::class);
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 
-// $app->register(Dusterio\LumenPassport\PassportServiceProvider::class);
+
 
 
 
@@ -134,7 +136,7 @@ $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
-    require __DIR__.'/../routes/web.php';
+    require __DIR__.'/../routes/api.php';
 });
 
 return $app;

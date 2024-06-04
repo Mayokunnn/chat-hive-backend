@@ -7,8 +7,6 @@ use App\Models\User;
 use App\Traits\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
-use Illuminate\Log\Logger;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -28,7 +26,7 @@ class AuthController extends Controller
     public function __construct()
     {
         $firebase = (new Factory)
-            ->withServiceAccount(env("FIREBASE_SERVICE_ACCOUNT"))
+            ->withServiceAccount(base_path(env("FIREBASE_SERVICE_ACCOUNT")))
             ->withProjectId(env('FIREBASE_PROJECT_ID'))
             ->createStorage();
 
