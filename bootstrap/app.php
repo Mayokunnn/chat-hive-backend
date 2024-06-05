@@ -71,6 +71,8 @@ $app->singleton('session.store', function () use ($app) {
 $app->configure('app');
 $app->configure('broadcasting');
 $app->configure('firebase');
+$app->configure('logging');
+$app->configure('auth');
 
 
 

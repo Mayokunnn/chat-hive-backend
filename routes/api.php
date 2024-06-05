@@ -22,6 +22,9 @@ $router->post('register', ['as' => 'register', 'uses' => 'AuthController@registe
 
 $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->post('/logout', ['as' => 'logout', 'uses' => 'AuthController@logout']);
-    $router->post('/messages', 'MessageController@sendMessage');
-    $router->get('/messages', 'MessageController@getMessages');
+    $router->group(['prefix' => 'api/v1'], function () use ($router) {
+        $router->post('/messages', 'MessageController@sendMessage');
+        $router->get('/messages', 'MessageController@getMessages');
+        
+    });
 });

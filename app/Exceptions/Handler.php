@@ -8,6 +8,12 @@ use Illuminate\Validation\ValidationException;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
+use ErrorException;
+use Illuminate\Support\Facades\Log;
+use ParseError;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use TypeError;
+use App\Traits\Response;
 
 class Handler extends ExceptionHandler
 {
@@ -49,6 +55,30 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        if($exception instanceof NotFoundHttpException){
+            return Response::error("Request Error: Resource not found", statusCode:404,);
+        }
+        
+        if($exception instanceof HttpException){
+            return Response::error(403, "Request Error: Forbidden error");
+        }
+
+        if($exception instanceof TypeError){
+            // narrow the exception to capture only jwt errors
+            if( str_contains($exception->getMessage() , 'BaseSigner.php ') ){
+                return Response::error(401, "Authentication Error: Session expired, sign in");
+            } else {
+                Log::error("Syntax Error At: {$exception->getMessage()} {$exception->getFile()} on line {$exception->getLine()}");
+                return Response::error(500, "Server Error: Invalid data type");
+            }
+           
+        }
+
+        if ($exception instanceof ParseError || $exception instanceof ErrorException) {
+            Log::error("Syntax Error At: {$exception->getMessage()} {$exception->getFile()} on line {$exception->getLine()}");
+            return Response::error(500, "Server Error: Check code syntax");
+        }
+
         return parent::render($request, $exception);
     }
 }

@@ -4,7 +4,7 @@ namespace App\Traits;
 
 trait Response
 {
-    protected function error($message, $error = [] ,$statusCode){
+    protected static function error($message, $error = [] ,$statusCode){
         return response()->json([
             'message' => $message,
             'error' => $error,
@@ -12,7 +12,7 @@ trait Response
         ], $statusCode);
     }
 
-    protected function success($message, $data= [], $statusCode= 200){
+    protected static function success($message, $data= [], $statusCode= 200){
         return response()->json([
             'message' => $message,
             'data' => $data,

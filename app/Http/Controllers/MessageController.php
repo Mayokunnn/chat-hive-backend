@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Message;
+use App\Domains\MessageModule\Models\Message;
 use App\Traits\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;

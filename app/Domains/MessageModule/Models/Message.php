@@ -1,8 +1,10 @@
 <?php
 
 
-namespace App\Models;
+namespace App\Domains\MessageModule\Models;
 
+use App\Models\Conversation;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\Model;
