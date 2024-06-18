@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Domains\ConversationModule\Models;
 
+use App\Domains\ConversationModule\Models\Group;
+use App\Domains\UserModule\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class GroupMember extends Model

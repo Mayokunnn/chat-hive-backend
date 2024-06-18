@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Traits\ResponseService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
@@ -55,28 +56,27 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        if($exception instanceof NotFoundHttpException){
-            return Response::error("Request Error: Resource not found", statusCode:404,);
-        }
-        
-        if($exception instanceof HttpException){
-            return Response::error(403, "Request Error: Forbidden error");
+        if ($exception instanceof NotFoundHttpException) {
+            return ResponseService::error("Request Error: Resource not found", [$exception->getMessage()], 404,);
         }
 
-        if($exception instanceof TypeError){
+        if ($exception instanceof HttpException) {
+            return ResponseService::error("Request Error: Forbidden error", [$exception->getMessage()], 403);
+        }
+
+        if ($exception instanceof TypeError) {
             // narrow the exception to capture only jwt errors
-            if( str_contains($exception->getMessage() , 'BaseSigner.php ') ){
-                return Response::error(401, "Authentication Error: Session expired, sign in");
+            if (str_contains($exception->getMessage(), 'BaseSigner.php ')) {
+                return ResponseService::error("Authentication Error: Session expired, sign in", [$exception->getMessage()], 401);
             } else {
                 Log::error("Syntax Error At: {$exception->getMessage()} {$exception->getFile()} on line {$exception->getLine()}");
-                return Response::error(500, "Server Error: Invalid data type");
+                return ResponseService::error("Server Error: Invalid data type", [$exception->getMessage()], 500);
             }
-           
         }
 
         if ($exception instanceof ParseError || $exception instanceof ErrorException) {
             Log::error("Syntax Error At: {$exception->getMessage()} {$exception->getFile()} on line {$exception->getLine()}");
-            return Response::error(500, "Server Error: Check code syntax");
+            return ResponseService::error("Server Error: Check code syntax", [$exception->getMessage()], 500);
         }
 
         return parent::render($request, $exception);

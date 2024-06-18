@@ -3,8 +3,8 @@
 
 namespace App\Domains\MessageModule\Models;
 
-use App\Models\Conversation;
-use App\Models\User;
+use App\Domains\ConversationModule\Models\Conversation;
+use App\Domains\UserModule\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\Model;
