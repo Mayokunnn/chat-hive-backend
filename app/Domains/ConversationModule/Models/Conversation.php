@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 class Conversation extends Model
 {
     use HasFactory;
-    protected $fillable = [];
+    protected $fillable = ['name', 'image'];
 
     public function users()
     {

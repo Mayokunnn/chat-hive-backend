@@ -89,6 +89,7 @@ $app->alias('cache', \Illuminate\Cache\CacheManager::class);
 
 $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
+    'ensureUserIsPartOfConversation' => App\Http\Middleware\EnsureUserIsPartOfConversation::class,
 ]);
 
 

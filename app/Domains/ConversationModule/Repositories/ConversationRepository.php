@@ -26,14 +26,6 @@ class ConversationRepository
         return Conversation::all();
     }
 
-    public static function getAllConversationsOfAUser($user_id)
-    {
-        $user = User::find($user_id);
-        $conversations = $user->conversations;
-
-        return $conversations;
-    }
-
     public static function getAllMessagesInAConversation($conversation_id)
     {
         $conversation = Conversation::find($conversation_id);
@@ -42,20 +34,26 @@ class ConversationRepository
         return $messages;
     }
 
-    public static function getConversationById($id){
+    public static function getConversationById($id)
+    {
         $conversation = Conversation::find($id);
-        
+
         return $conversation;
     }
 
 
-    public static function createConversation($name, $image = null)
+    public static function createPersonalConversation(array $userIds, $name = null, $image = null)
     {
+
         self::initFirebase();
+
         $conversation = Conversation::create([
             'name' => $name,
             'image' => null, // Temporarily set to null until we have the URL
         ]);
+
+        // Attach users to the conversation
+        $conversation->users()->attach($userIds);
 
         if ($image) {
             $fileName = 'images/' . time() . '_' . $image->getClientOriginalName();
@@ -76,18 +74,14 @@ class ConversationRepository
     }
 
 
-    public static function updateConversation($conversation_id, $name, $image = null)
+    public static function updatePersonalConversation($conversation_id, $request)
     {
         self::initFirebase();
-
         $conversation = Conversation::find($conversation_id);
-        if (!$conversation) {
-            return null; // Conversation not found
-        }
+        $conversation->name = $request->input('name') ?? $conversation->name;
 
-        $conversation->name = $name;
-
-        if ($image) {
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
             // Delete the existing image from Firebase Storage
             $existingImageUrl = $conversation->image;
             if ($existingImageUrl) {
@@ -114,7 +108,7 @@ class ConversationRepository
         return $conversation;
     }
 
-    public static function deleteConversation($conversation_id)
+    public static function deletePersonalConversation($conversation_id)
     {
         self::initFirebase();
 

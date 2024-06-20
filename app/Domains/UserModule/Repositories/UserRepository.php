@@ -66,4 +66,12 @@ class UserRepository
         $user->loggedIn = filter_var($status, FILTER_VALIDATE_BOOLEAN);
         $user->save();
     }
+
+    public static function getAllConversationsOfAUser($user_id)
+    {
+        $user = User::find($user_id);
+        $conversations = $user->conversations;
+
+        return $conversations;
+    }
 }
