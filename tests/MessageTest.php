@@ -8,7 +8,7 @@ use Laravel\Lumen\Testing\DatabaseMigrations;
 use Laravel\Lumen\Testing\DatabaseTransactions;
 use App\Models\User;
 use App\Models\Conversation;
-use App\Models\Message;
+use App\Domains\MessageModule\Models\Message;
 
 class MessageTest extends TestCase
 {
@@ -24,7 +24,7 @@ class MessageTest extends TestCase
         $user = User::factory()->create();
         $conversation = Conversation::factory()->create();
 
-        $this->actingAs($user, 'api')->post('/messages', [
+        $this->actingAs($user, 'api')->post('api/v1/messages', [
             'conversation_id' => $conversation->id,
             'sender_id' => $user->id,
             'type' => 'text',

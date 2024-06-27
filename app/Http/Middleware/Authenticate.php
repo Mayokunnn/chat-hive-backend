@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Traits\ResponseService;
 use Closure;
 use Illuminate\Contracts\Auth\Factory as Auth;
 
@@ -35,8 +36,8 @@ class Authenticate
      */
     public function handle($request, Closure $next, $guard = null)
     {
-        if (!$request->session()->has('user_id')) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+        if ($this->auth->guard($guard)->guest()) {
+            return ResponseService::error( "Request Error: Unauthorized user access", [], 401);
         }
 
         return $next($request);

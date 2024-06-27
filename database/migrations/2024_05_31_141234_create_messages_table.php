@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('conversation_id');
             $table->unsignedBigInteger('sender_id');
             $table->string('type')->default('text'); // text, image, video, file
-            $table->string('url')->nullable(); // URL for the file, image, or video
+            $table->longText('url')->nullable(); // URL for the file, image, or video
             $table->text('content')->nullable(); // Make content nullable for non-text messages
             $table->timestamps();
             // Foreign key constraints

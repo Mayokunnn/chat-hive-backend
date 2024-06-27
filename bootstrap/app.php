@@ -50,13 +50,6 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
-$app->singleton(Illuminate\Session\SessionManager::class, function () use ($app) {
-    return $app->loadComponent('session', Illuminate\Session\SessionServiceProvider::class, 'session');
-});
-
-$app->singleton('session.store', function () use ($app) {
-    return $app->loadComponent('session', Illuminate\Session\SessionServiceProvider::class, 'session.store');
-});
 /*
 |--------------------------------------------------------------------------
 | Register Config Files
@@ -69,8 +62,10 @@ $app->singleton('session.store', function () use ($app) {
 */
 
 $app->configure('app');
+$app->configure('jwt');
 $app->configure('broadcasting');
 $app->configure('firebase');
+$app->configure('logging');
 
 
 
@@ -94,10 +89,7 @@ $app->alias('cache', \Illuminate\Cache\CacheManager::class);
 
 $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
-]);
-
-$app->middleware([
-    \Illuminate\Session\Middleware\StartSession::class,
+    'ensureUserIsPartOfConversation' => App\Http\Middleware\EnsureUserIsPartOfConversation::class,
 ]);
 
 
@@ -117,7 +109,8 @@ $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(App\Providers\EventServiceProvider::class);
 $app->register(Illuminate\Broadcasting\BroadcastServiceProvider::class);
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
-
+$app->register(\Anik\Form\FormRequestServiceProvider::class);
+$app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 
 
 
