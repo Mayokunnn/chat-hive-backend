@@ -3,6 +3,7 @@
 namespace App\Domains\MessageModule\Respositories;
 
 use App\Domains\MessageModule\Models\Message;
+use App\Domains\MessageModule\Events\MessageSent;
 use Kreait\Firebase\Factory;
 
 class MessageRepository
@@ -22,14 +23,34 @@ class MessageRepository
     public static function create($request)
     {
         self::initFirebase();
-        $message = new Message();
-        $message->conversation_id = $request->input('conversation_id');
-        $message->sender_id = $request->input('sender_id');
-        $message->type = $request->input('type');
-        $message->content = $request->input('content') ?? '';
+
+        $messageData = [
+            'conversation_id' => $request->input('conversationId'),
+            'sender_id' => $request->input('senderId'),
+            'type' => $request->input('type'),
+            'content' => $request->input('content') ?? '',
+            'url' => null,
+        ];
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $fileName = 'uploads/' . time() . '.' . $file->getClientOriginalExtension();
+            // Determine the file type based on MIME type
+            $fileType = $file->getClientMimeType();
+            switch ($fileType) {
+                case 'image/jpeg':
+                case 'image/png':
+                    $folder = 'images/';
+                    break;
+                case 'video/mp4':
+                case 'video/avi':
+                    $folder = 'videos/';
+                    break;
+                case 'application/pdf':
+                    $folder = 'documents/';
+                    break;
+                default:
+                    $folder = 'others/';
+            }
+            $fileName = $folder . time() . '.' . $file->getClientOriginalExtension();
             $localPath = $file->getPathname();
 
             $bucket = self::$firebaseStorage->getBucket();
@@ -37,12 +58,14 @@ class MessageRepository
                 'name' => $fileName
             ]);
 
-            $message->url = $bucket->object($fileName)->signedUrl(new \DateTime('9999-12-31'));
-
-            $message->save();
-
-            return $message;
+            $messageData['url'] = $bucket->object($fileName)->signedUrl(new \DateTime('9999-12-31'));
         }
+
+        $message = Message::create($messageData);
+        event(new MessageSent($message));
+        $message->save();
+
+        return $message;
     }
 
     public static function getMessagesInConversation($conversation_id)
@@ -55,11 +78,18 @@ class MessageRepository
         return Message::find($message_id);
     }
 
-    public static function updateMessage($message_id, $data, $request)
+    public static function updateMessage($message_id, $request)
     {
         self::initFirebase();
         $message = Message::find($message_id);
-        $message->fill($data); // Update other fields
+        $messageData = [
+            'conversation_id' => $request->input('conversationId'),
+            'sender_id' => $request->input('senderId'),
+            'type' => $request->input('type'),
+            'content' => $request->input('content') ?? '',
+            'url' => null,
+        ];
+        $message->fill($messageData); // Update other fields
 
         if ($request->hasFile('file')) {
             // Delete the existing file from Firebase Storage
@@ -72,7 +102,24 @@ class MessageRepository
 
             // Upload the new file to Firebase Storage
             $file = $request->file('file');
-            $fileName = 'uploads/' . time() . '.' . $file->getClientOriginalExtension();
+            // Determine the file type based on MIME type
+            $fileType = $file->getClientMimeType();
+            switch ($fileType) {
+                case 'image/jpeg':
+                case 'image/png':
+                    $folder = 'images/';
+                    break;
+                case 'video/mp4':
+                case 'video/avi':
+                    $folder = 'videos/';
+                    break;
+                case 'application/pdf':
+                    $folder = 'documents/';
+                    break;
+                default:
+                    $folder = 'others/';
+            }
+            $fileName = $folder . time() . '.' . $file->getClientOriginalExtension();
             $localPath = $file->getPathname();
 
             $bucket = self::$firebaseStorage->getBucket();
@@ -103,6 +150,8 @@ class MessageRepository
 
         // Delete the message from the database
         $message->delete();
+
+        return true;
     }
 
 

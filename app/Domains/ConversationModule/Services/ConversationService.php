@@ -6,6 +6,7 @@ use App\Domains\ConversationModule\Models\Conversation;
 use App\Domains\ConversationModule\Repositories\ConversationRepository;
 use App\Domains\ConversationModule\Resources\ConversationResource;
 use App\Domains\UserModule\Models\User;
+use App\Domains\UserModule\Resources\UserResource;
 use App\Traits\ResponseService;
 
 class ConversationService
@@ -109,7 +110,31 @@ class ConversationService
         return ResponseService::success('Conversation Deleted');
     }
 
-    public static addUserToConversation(){
-        
+    public static function getUsersInAConversation($conversation_id){
+        $conversation = ConversationRepository::getConversationById($conversation_id);
+
+        if (empty($conversation)) {
+            return ResponseService::error('Request Error: Conversation not found', [], 400);
+        }
+
+        $users = ConversationRepository::getAllUsersInConversation($conversation_id);
+
+        return ResponseService::success('Success', [UserResource::collection($users)],200);
     }
+
+    // public static function addUserToConversation($request, $conversation_id){
+    //     $conversation = ConversationRepository::getConversationById($conversation_id);
+
+    //     if (empty($conversation)) {
+    //         return ResponseService::error('Request Error: Conversation not found', [], 400);
+    //     }
+
+    //     $user = User::find($request->input('userId'));
+
+    //     if (empty($user)) {
+    //         return ResponseService::error('Request Error: User not found', [], 400);
+    //     }
+
+    //     $conversation = ConversationRepository::addUserToConversation($conversation->id, $request->input('userId'));
+    // }
 }

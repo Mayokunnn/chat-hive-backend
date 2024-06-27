@@ -3,7 +3,7 @@
 namespace App\Traits;
 
 class ResponseService{
-    public static function error($message, $error = null ,$statusCode ){
+    public static function error($message, $error = null ,$statusCode = 400 ){
         return response()->json([
             'message' => $message,
             'error' => $error,

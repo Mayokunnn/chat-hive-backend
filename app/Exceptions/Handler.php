@@ -57,16 +57,24 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $exception)
     {
         if ($exception instanceof NotFoundHttpException) {
+            Log::error("Syntax Error At: {$exception->getMessage()} {$exception->getFile()} on line {$exception->getLine()}");
             return ResponseService::error("Request Error: Resource not found", [$exception->getMessage()], 404,);
         }
 
         if ($exception instanceof HttpException) {
+            Log::error("Syntax Error At: {$exception->getMessage()} {$exception->getFile()} on line {$exception->getLine()}");
             return ResponseService::error("Request Error: Forbidden error", [$exception->getMessage()], 403);
+        }
+    
+        if ($exception instanceof AuthorizationException) {
+            Log::error("Syntax Error At: {$exception->getMessage()} {$exception->getFile()} on line {$exception->getLine()}");
+            return ResponseService::error("Authorization Error: You are not authorized", [$exception->getMessage()], 401);
         }
 
         if ($exception instanceof TypeError) {
             // narrow the exception to capture only jwt errors
             if (str_contains($exception->getMessage(), 'BaseSigner.php ')) {
+                Log::error("Syntax Error At: {$exception->getMessage()} {$exception->getFile()} on line {$exception->getLine()}");
                 return ResponseService::error("Authentication Error: Session expired, sign in", [$exception->getMessage()], 401);
             } else {
                 Log::error("Syntax Error At: {$exception->getMessage()} {$exception->getFile()} on line {$exception->getLine()}");

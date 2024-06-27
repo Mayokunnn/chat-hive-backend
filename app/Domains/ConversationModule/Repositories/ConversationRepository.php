@@ -26,13 +26,7 @@ class ConversationRepository
         return Conversation::all();
     }
 
-    public static function getAllMessagesInAConversation($conversation_id)
-    {
-        $conversation = Conversation::find($conversation_id);
-        $messages = $conversation->messages;
-
-        return $messages;
-    }
+ 
 
     public static function getConversationById($id)
     {
@@ -130,16 +124,19 @@ class ConversationRepository
         return true;
     }
 
-    public static function addUserToConversation($conversation_id, $user_id)
+    public static function addUserToConversation($conversation_id, $userId)
     {
         $conversation = Conversation::find($conversation_id);
-        $conversation->users()->attach($user_id);
+        $conversation->users()->attach($userId);
+
+        $conversation->save();
+        return $conversation;
     }
 
-    public static function removeUserFromConversation($conversation_id, $user_id)
+    public static function removeUserFromConversation($conversation_id, $userId)
     {
         $conversation = Conversation::find($conversation_id);
-        $conversation->users()->detach($user_id);
+        $conversation->users()->detach($userId);
     }
 
 

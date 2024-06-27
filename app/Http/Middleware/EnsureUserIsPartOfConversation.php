@@ -31,13 +31,13 @@ class EnsureUserIsPartOfConversation
         // Find the conversation
         $conversation = Conversation::find($conversation_id);
 
-        if(empty($conversation)){
+        if (empty($conversation)) {
             return ResponseService::error("Request Error: Conversation not found", [], 400);
         }
 
         // Check if the user is part of the conversation
-        if (!$conversation || !$conversation->users->contains($user->id)) {
-            return ResponseService::error('Authorization Error: You cannot perfrom this action', [$conversation], 403);
+        if (empty($conversation) || !$conversation->users->contains($user->id)) {
+            return ResponseService::error('Authorization Error: You cannot perfrom this action', [$conversation], 401);
         }
 
         return $next($request);

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Domains\MessageModule\Models;
 
 use App\Domains\ConversationModule\Models\Conversation;
