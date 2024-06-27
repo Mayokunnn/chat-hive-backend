@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__.'/../vendor/autoload.php';
-require_once __DIR__.'/../app/helpers.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../app/helpers.php';
 
 
 (new Laravel\Lumen\Bootstrap\LoadEnvironmentVariables(
@@ -63,6 +63,7 @@ $app->singleton(
 
 $app->configure('app');
 $app->configure('jwt');
+$app->configure('mail');
 $app->configure('broadcasting');
 $app->configure('firebase');
 $app->configure('logging');
@@ -90,6 +91,9 @@ $app->alias('cache', \Illuminate\Cache\CacheManager::class);
 $app->routeMiddleware([
     'auth' => App\Http\Middleware\Authenticate::class,
     'ensureUserIsPartOfConversation' => App\Http\Middleware\EnsureUserIsPartOfConversation::class,
+    'ensureUserIsPartOfGroupConversation' => App\Http\Middleware\EnsureUserIsPartOfGroupConversation::class,
+    'ensureUserIsOwner' => App\Http\Middleware\EnsureUserIsOwner::class,
+
 ]);
 
 
@@ -129,7 +133,7 @@ $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
-    require __DIR__.'/../routes/api.php';
+    require __DIR__ . '/../routes/api.php';
 });
 
 return $app;

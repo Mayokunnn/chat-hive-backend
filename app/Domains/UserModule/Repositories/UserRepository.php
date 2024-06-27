@@ -48,9 +48,76 @@ class UserRepository
 
         return $user;
     }
+
+    public static function updateUser($id, $request)
+    {
+        self::initFirebase();
+        $user = self::getUserById($id);
+        $user->name = $request->input('name') ?? $user->name;
+        $user->email = $request->input('email') ?? $user->email;
+        $user->username = $request->input('username') ?? $user->username;
+
+        if ($request->hasFile('image')) {
+            // Delete the existing image from Firebase Storage
+            $existingImageUrl = $user->image;
+            if ($existingImageUrl) {
+                $existingFileName = basename(parse_url($existingImageUrl, PHP_URL_PATH));
+                $bucket = self::$firebaseStorage->getBucket();
+                $bucket->object($existingFileName)->delete();
+            }
+
+            $image = $request->file('image');
+            $fileName = time() . '.' . $image->getClientOriginalExtension();
+            $localPath = $image->getPathname();
+
+            $bucket = self::$firebaseStorage->getBucket();
+            $bucket->upload(fopen($localPath, 'r'), [
+                'name' => $fileName
+            ]);
+
+            $imageReference = $bucket->object($fileName);
+            $imageUrl = $imageReference->signedUrl(new \DateTime('9999-12-31'));
+
+            $user->image = $imageUrl;
+        }
+
+
+        $user->save();
+
+        return $user;
+    }
+
+    public static function deleteUser($id)
+    {
+        self::initFirebase();
+        $user = self::getUserById($id);
+
+
+        // Delete the existing image from Firebase Storage
+        $existingImageUrl = $user->image;
+        if ($existingImageUrl) {
+            $existingFileName = basename(parse_url($existingImageUrl, PHP_URL_PATH));
+            $bucket = self::$firebaseStorage->getBucket();
+            $bucket->object($existingFileName)->delete();
+        }
+
+
+        $user->delete();
+
+        return true;
+    }
+
+
+
     public static  function getUserByUsername($username)
     {
         $user = User::where("username", $username)->first();
+        return $user;
+    }
+
+    public static  function getUserById($id)
+    {
+        $user = User::where("id", $id)->first();
         return $user;
     }
 
