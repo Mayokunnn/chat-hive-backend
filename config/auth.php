@@ -91,6 +91,6 @@ return [
 
     'max_attempts' => 5,
 
-    'decayminutes' => 60,
+    'decayminutes' => 10,
 
 ];
