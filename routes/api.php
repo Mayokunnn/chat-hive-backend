@@ -30,7 +30,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
         // User management
         $router->get('/users/{user_id}', ['as' => 'get-user', 'uses' => 'UserController@getUser']);
         $router->post('/users/{user_id}/update', ['as' => 'update-user', 'uses' => 'UserController@updateUser']);
-
+        $router->post('/users/{user_id}/delete', ['as' => 'delete-user', 'uses' => 'UserController@deleteUser']);
+        $router->post('/users/{user_id}/conversations', ['as' => 'get-user-conversations', 'uses' => 'UserController@getUserConversations']);
 
         //Conversation management
         $router->group(['prefix' => 'conversations'], function () use ($router) {

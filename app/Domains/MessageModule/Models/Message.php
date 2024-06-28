@@ -7,11 +7,24 @@ use App\Domains\UserModule\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Message extends Model
 {
 
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($message) {
+            // Delete related group_members entries
+            DB::table('message_user')->where('message_id', $message->id)->delete();
+        });
+    }
     protected $fillable = [
         'conversation_id', 'sender_id', 'type', 'content', 'url'
     ];

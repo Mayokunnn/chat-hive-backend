@@ -13,12 +13,9 @@ return new class extends Migration
     {
         Schema::create('group_members', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('group_id');
-            $table->unsignedBigInteger('user_id');
+            $table->foreignId('group_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->onDelete("no action");
             $table->timestamps();
-            // Foreign key constraints
-            $table->foreign('group_id')->references('id')->on('groups')->cascadeOnDelete();
-            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             // Unique constraint to ensure a user can only be a member of a group once
             $table->unique(['group_id', 'user_id']);
         });

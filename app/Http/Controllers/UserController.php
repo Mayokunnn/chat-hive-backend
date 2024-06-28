@@ -22,4 +22,12 @@ class UserController extends Controller
         
         return UserService::updateUser($user_id, $request);
     }
+
+    public function deleteUser($user_id){
+        return UserService::deleteUser($user_id);
+    }
+
+    public function getUserConversations($user_id){
+        return UserService::getUserConversations($user_id);
+    }
 }

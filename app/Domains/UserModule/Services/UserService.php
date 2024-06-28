@@ -2,6 +2,8 @@
 
 namespace App\Domains\UserModule\Services;
 
+use App\Domains\ConversationModule\Models\Conversation;
+use App\Domains\ConversationModule\Resources\ConversationResource;
 use App\Domains\UserModule\Repositories\UserRepository;
 use App\Domains\UserModule\Resources\UserResource;
 use App\Traits\ResponseService;
@@ -55,6 +57,27 @@ class UserService
             return ResponseService::success("Account deleted", [], 200);
         } catch (Exception $e) {
             return ResponseService::error("Server Error: User could not be deleted", [], 500);
+        }
+    }
+
+    public static function getUserConversations($userId)
+    {
+        try {
+            $user = UserRepository::getUserById($userId);
+
+            if (!$user || empty($user)) {
+                return ResponseService::error("Request Error: User does not exist", [], 400);
+            }
+
+            $conversations = UserRepository::getAllConversationsOfAUser($userId);
+
+            if (!$conversations || empty($conversations)) {
+                return ResponseService::success('No conversations yet!', [], 200);
+            }
+
+            return ResponseService::success('Success', ConversationResource::collection($conversations), 200);
+        } catch (Exception $e) {
+            return ResponseService::error("Server Error: User could not be found", [], 500);
         }
     }
 }
