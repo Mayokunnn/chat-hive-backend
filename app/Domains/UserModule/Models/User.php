@@ -11,6 +11,7 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Laravel\Lumen\Auth\Authorizable;
@@ -79,6 +80,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function messages()
     {
         return $this->hasMany(Message::class);
+    }
+
+    public function loginAttempt(): HasOne
+    {
+        return $this->hasOne(LoginAttempt::class);
     }
     /**
      * The attributes excluded from the model's JSON form.

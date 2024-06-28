@@ -2,6 +2,7 @@
 
 namespace App\Domains\UserModule\Repositories;
 
+use App\Domains\UserModule\Models\LoginAttempt;
 use App\Domains\UserModule\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Kreait\Firebase\Factory;
@@ -9,6 +10,8 @@ use Kreait\Firebase\Factory;
 class UserRepository
 {
     protected static $firebaseStorage;
+
+    protected static $decayMinutes;
 
     public static function initFirebase()
     {
@@ -18,6 +21,12 @@ class UserRepository
 
         self::$firebaseStorage = $firebase->createStorage();
     }
+
+    public static function setUp()
+    {
+        self::$decayMinutes = intval(config('auth.decayminutes'));
+    }
+
     public static function createUser($request)
     {
         self::initFirebase();
@@ -106,6 +115,70 @@ class UserRepository
 
         return true;
     }
+
+    public static function incrementLoginAttempts($user)
+    {
+        self::setUp();
+        if ($user) {
+            $loginAttempt = LoginAttempt::firstOrCreate(
+                ['user_id' => $user->id],
+                ['attempts' => 0, 'last_attempt_at' => now()]
+            );
+
+            if (now()->diffInMinutes($loginAttempt->last_attempt_at) > self::$decayMinutes) {
+                $loginAttempt->attempts = 1;
+            } else {
+                $loginAttempt->increment('attempts');
+            }
+
+            $loginAttempt->last_attempt_at = now();
+            $loginAttempt->save();
+        }
+    }
+
+    public static function resetLoginAttempts($user)
+    {
+        if ($user) {
+            $loginAttempt = LoginAttempt::firstOrCreate(
+                ['user_id' => $user->id],
+                ['attempts' => 0]
+            );
+
+            $loginAttempt->attempts = 0;
+            $loginAttempt->last_attempt_at = null;
+            $loginAttempt->save();
+        }
+    }
+
+
+    public static function getLoginAttempts($user)
+    {
+        $maxAttempts = config('auth.max_attempts', 5);
+
+        if ($user) {
+            $loginAttempt = LoginAttempt::where('user_id', $user->id)->first();
+            $attempts = $loginAttempt ? $loginAttempt->attempts : 0;
+
+            return $attempts;
+        }
+
+        return $maxAttempts;
+    }
+
+    public static function getRemainingLoginAttempts($user)
+    {
+        $maxAttempts = config('auth.max_attempts', 5);
+
+        if ($user) {
+            $loginAttempt = LoginAttempt::where('user_id', $user->id)->first();
+            $attempts = $loginAttempt ? $loginAttempt->attempts : 0;
+
+            return $maxAttempts - $attempts;
+        }
+
+        return $maxAttempts;
+    }
+
 
 
 

@@ -21,7 +21,7 @@ class ConversationResource extends JsonResource
             'name' => $this->name,
             'image' => $this->image,
             $this->mergeWhen(
-                $request->routeIs(['conversations.*']),
+                $request->routeIs(['get-user-conversations','get-conversation', 'create-conversation', 'update-conversation']),
                 [
                     'emailVerifiedAt' => $this->email_verified_at,
                     'createdAt' => $this->created_at,

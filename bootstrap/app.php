@@ -93,7 +93,7 @@ $app->routeMiddleware([
     'ensureUserIsPartOfConversation' => App\Http\Middleware\EnsureUserIsPartOfConversation::class,
     'ensureUserIsPartOfGroupConversation' => App\Http\Middleware\EnsureUserIsPartOfGroupConversation::class,
     'ensureUserIsOwner' => App\Http\Middleware\EnsureUserIsOwner::class,
-
+    'throttle' => App\Http\Middleware\ThrottleRequests::class,
 ]);
 
 

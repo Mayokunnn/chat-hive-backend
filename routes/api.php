@@ -2,6 +2,7 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
+use App\Traits\ResponseService;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,11 +19,14 @@
 
 
 $router->group(['prefix' => 'api/v1'], function () use ($router) {
+    $router->get('/', function () {
+        return ResponseService::success("Ok!", [], 200);
+    });
     $router->post('login', ['as' => 'login', 'uses' => 'AuthController@login']);
     $router->post('register', ['as' => 'register', 'uses' => 'AuthController@register']);
     $router->post('password/reset', ['as' => 'password-reset', 'uses' => 'AuthController@resetPassword']);
 
-    $router->group(['middleware' => 'auth'], function () use ($router) {
+    $router->group(['middleware' => ['auth','throttle:60,1']], function () use ($router) {
         $router->post('/logout', ['as' => 'logout', 'uses' => 'AuthController@logout']);
         $router->post('/refresh-token', ['as' => 'token-refresh', 'uses' => 'AuthController@refreshToken']);
         $router->post('/users/{user_id}/password/change', ['as' => 'password-change', 'uses' => 'AuthController@changePassword']);
@@ -31,7 +35,7 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
         $router->get('/users/{user_id}', ['as' => 'get-user', 'uses' => 'UserController@getUser']);
         $router->post('/users/{user_id}/update', ['as' => 'update-user', 'uses' => 'UserController@updateUser']);
         $router->post('/users/{user_id}/delete', ['as' => 'delete-user', 'uses' => 'UserController@deleteUser']);
-        $router->post('/users/{user_id}/conversations', ['as' => 'get-user-conversations', 'uses' => 'UserController@getUserConversations']);
+        $router->get('/users/{user_id}/conversations', ['as' => 'get-user-conversations', 'uses' => 'UserController@getUserConversations']);
 
         //Conversation management
         $router->group(['prefix' => 'conversations'], function () use ($router) {
