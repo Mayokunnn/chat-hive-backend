@@ -68,13 +68,13 @@ class ConversationRepository
     }
 
 
-    public static function updatePersonalConversation($conversation_id, $request)
+    public static function updateConversation($conversation_id, $request)
     {
         self::initFirebase();
         $conversation = Conversation::find($conversation_id);
         $conversation->name = $request->input('name') ?? $conversation->name;
 
-        if ($request->hasFile('image')) {
+        if ($request->hasFile('file')) {
             $image = $request->file('image');
             // Delete the existing image from Firebase Storage
             $existingImageUrl = $conversation->image;
@@ -102,7 +102,7 @@ class ConversationRepository
         return $conversation;
     }
 
-    public static function deletePersonalConversation($conversation_id)
+    public static function deleteConversation($conversation_id)
     {
         self::initFirebase();
 
@@ -144,5 +144,33 @@ class ConversationRepository
     {
         $conversation = Conversation::find($conversation_id);
         return $conversation->users;
+    }
+
+    public static function createGroupConversation($name = null, $image = null)
+    {
+
+        self::initFirebase();
+
+        $conversation = Conversation::create([
+            'name' => $name,
+            'image' => null, // Temporarily set to null until we have the URL
+        ]);
+
+        if ($image) {
+            $fileName = 'images/' . time() . '_' . $image->getClientOriginalName();
+            $localPath = $image->getPathname();
+
+            $bucket = self::$firebaseStorage->getBucket();
+            $bucket->upload(fopen($localPath, 'r'), [
+                'name' => $fileName
+            ]);
+
+            $imageUrl = $bucket->object($fileName)->signedUrl(new \DateTime('9999-12-31'));
+
+            $conversation->image = $imageUrl;
+            $conversation->save();
+        }
+
+        return $conversation;
     }
 }

@@ -15,6 +15,8 @@ use ParseError;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use TypeError;
 use App\Traits\Response;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -61,11 +63,15 @@ class Handler extends ExceptionHandler
             return ResponseService::error("Request Error: Resource not found", [$exception->getMessage()], 404,);
         }
 
+        if ($exception instanceof ThrottleRequestsException || $exception instanceof TooManyRequestsHttpException) {
+            return ResponseService::error("Request Error: Too Many Attempts", [], 429);
+        }
+
         if ($exception instanceof HttpException) {
             Log::error("Syntax Error At: {$exception->getMessage()} {$exception->getFile()} on line {$exception->getLine()}");
             return ResponseService::error("Request Error: Forbidden error", [$exception->getMessage()], 403);
         }
-    
+
         if ($exception instanceof AuthorizationException) {
             Log::error("Syntax Error At: {$exception->getMessage()} {$exception->getFile()} on line {$exception->getLine()}");
             return ResponseService::error("Authorization Error: You are not authorized", [$exception->getMessage()], 401);

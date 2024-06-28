@@ -6,13 +6,25 @@ use App\Domains\ConversationModule\Models\Conversation;
 use App\Domains\UserModule\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Group extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
         'name', 'owner_id', 'conversation_id'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($group) {
+            // Delete related group_members entries
+            DB::table('group_members')->where('group_id', $group->id)->delete();
+        });
+    }
 
 
    // Relationships
@@ -30,4 +42,6 @@ class Group extends Model
    {
        return $this->belongsTo(Conversation::class);
    }
+
+   
 }

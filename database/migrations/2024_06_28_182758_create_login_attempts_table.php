@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('message_user', function (Blueprint $table) {
+        Schema::create('login_attempts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('message_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->onDelete('no action');
-            $table->boolean('read')->default(false);
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->integer('attempts')->default(0);
+            $table->timestamp('last_attempt_at')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('message_user');
+        Schema::dropIfExists('login_attempts');
     }
 };

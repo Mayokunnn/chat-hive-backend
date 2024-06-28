@@ -84,7 +84,7 @@ class ConversationService
             return ResponseService::error('Request Error: Conversation not found', [], 400);
         }
 
-        $conversation = ConversationRepository::updatePersonalConversation($conversation->id, $request);
+        $conversation = ConversationRepository::updateConversation($conversation->id, $request);
 
         if (empty($conversation)) {
             return ResponseService::error('Conversation could not be updated. Try again later', [], 500);
@@ -101,7 +101,7 @@ class ConversationService
             return ResponseService::error('Request Error: Conversation not found', [], 400);
         }
 
-        $deleted = ConversationRepository::deletePersonalConversation($conversation->id);
+        $deleted = ConversationRepository::deleteConversation($conversation->id);
 
         if (!$deleted) {
             return ResponseService::error('Conversation could not be deleted. Try again later', [], 500);
@@ -122,19 +122,4 @@ class ConversationService
         return ResponseService::success('Success', [UserResource::collection($users)],200);
     }
 
-    // public static function addUserToConversation($request, $conversation_id){
-    //     $conversation = ConversationRepository::getConversationById($conversation_id);
-
-    //     if (empty($conversation)) {
-    //         return ResponseService::error('Request Error: Conversation not found', [], 400);
-    //     }
-
-    //     $user = User::find($request->input('userId'));
-
-    //     if (empty($user)) {
-    //         return ResponseService::error('Request Error: User not found', [], 400);
-    //     }
-
-    //     $conversation = ConversationRepository::addUserToConversation($conversation->id, $request->input('userId'));
-    // }
 }

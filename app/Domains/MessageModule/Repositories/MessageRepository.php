@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domains\MessageModule\Respositories;
+namespace App\Domains\MessageModule\Repositories;
 
 use App\Domains\MessageModule\Models\Message;
 use App\Domains\MessageModule\Events\MessageSent;

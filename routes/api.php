@@ -2,6 +2,7 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
+use App\Traits\ResponseService;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,16 +19,23 @@
 
 
 $router->group(['prefix' => 'api/v1'], function () use ($router) {
+    $router->get('/', function () {
+        return ResponseService::success("Ok!", [], 200);
+    });
     $router->post('login', ['as' => 'login', 'uses' => 'AuthController@login']);
     $router->post('register', ['as' => 'register', 'uses' => 'AuthController@register']);
+    $router->post('password/reset', ['as' => 'password-reset', 'uses' => 'AuthController@resetPassword']);
 
-    $router->group(['middleware' => 'auth'], function () use ($router) {
+    $router->group(['middleware' => ['auth','throttle:60,1']], function () use ($router) {
         $router->post('/logout', ['as' => 'logout', 'uses' => 'AuthController@logout']);
         $router->post('/refresh-token', ['as' => 'token-refresh', 'uses' => 'AuthController@refreshToken']);
+        $router->post('/users/{user_id}/password/change', ['as' => 'password-change', 'uses' => 'AuthController@changePassword']);
 
         // User management
-        $router->get('/user', ['as' => 'get-user', 'uses' => 'UserController@getUser']);
-        $router->post('/user/update', ['as' => 'update-user', 'uses' => 'UserController@updateUser']);
+        $router->get('/users/{user_id}', ['as' => 'get-user', 'uses' => 'UserController@getUser']);
+        $router->post('/users/{user_id}/update', ['as' => 'update-user', 'uses' => 'UserController@updateUser']);
+        $router->post('/users/{user_id}/delete', ['as' => 'delete-user', 'uses' => 'UserController@deleteUser']);
+        $router->get('/users/{user_id}/conversations', ['as' => 'get-user-conversations', 'uses' => 'UserController@getUserConversations']);
 
         //Conversation management
         $router->group(['prefix' => 'conversations'], function () use ($router) {
@@ -41,8 +49,8 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
 
                 // Conversation user management
                 $router->get('/users', ['as' => 'get-conversation-users', 'uses' => 'ConversationUserController@getAll']);
-                $router->post('/users/add', ['as' => 'add-conversation-user', 'uses' => 'ConversationUserController@add']);
-                $router->post('/users/remove', ['as' => 'remove-conversation-user', 'uses' => 'ConversationUserController@remove']);
+                // $router->post('/users/add', ['as' => 'add-conversation-user', 'uses' => 'ConversationUserController@add']);
+                // $router->post('/users/remove', ['as' => 'remove-conversation-user', 'uses' => 'ConversationUserController@remove']);
 
                 $router->group(['prefix' => 'messages'], function () use ($router) {
                     $router->get('/', ['as' => 'get-conversation-messages',  'uses' => 'MessageController@getAll']);
@@ -52,6 +60,22 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
                         $router->post('/delete', ['as' => 'delete-conversation-message',  'uses' => 'MessageController@delete']);
                     });
                 });
+            });
+        });
+
+        //Group management
+        $router->group(['prefix' => 'groups'], function () use ($router) {
+            $router->get('/', ['as' => 'get-group-conversations', 'uses' => 'GroupConversationController@getAll']);
+            $router->post('/create', ['as' => 'create-group-conversation', 'uses' => 'GroupConversationController@create']);
+
+            $router->group(['prefix' => '{group_id}', 'middleware' => 'ensureUserIsPartOfGroupConversation'], function () use ($router) {
+                $router->get('/', ['as' => 'get-group-conversation', 'uses' => 'GroupConversationController@getGroup']);
+                $router->post('/update', ['as' => 'update-group-conversation', 'uses' => 'GroupConversationController@update']);
+                $router->post('/delete', ['as' => 'delete-group-conversation', 'uses' => 'GroupConversationController@delete', 'middleware' => 'ensureUserIsOwner']);
+                // Group Conversation Participants Routes
+                $router->get('/members', ['as' => 'get-group-conversation-members', 'uses' => 'GroupConversationController@getAllParticipants']);
+                $router->post('members/add', ['as' => 'add-group-conversation-member', 'uses' => 'GroupConversationController@addMember']);
+                $router->post('members/remove/{user_id}', ['as' => 'remove-group-conversation-member', 'uses' => 'GroupConversationController@removeMember', 'middleware' => 'ensureUserIsOwner']);
             });
         });
     });

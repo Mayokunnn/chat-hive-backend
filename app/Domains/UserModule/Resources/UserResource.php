@@ -17,21 +17,19 @@ class UserResource extends JsonResource
         return [
             'type' => 'user',
             'id' => $this->id,
-            'attributes' => [
-                'name' => $this->name,
-                'email' => $this->email,
-                'image' => $this->image,
-                'username' => $this->username,
-                'loggedIn' => $this->loggedIn,
-                $this->mergeWhen(
-                    $request->routeIs(['users.*']),
-                    [
-                        'emailVerifiedAt' => $this->email_verified_at,
-                        'createdAt' => $this->created_at,
-                        'updatedAt' => $this->updated_at,
-                    ]
-                )
-            ],
+            'name' => $this->name,
+            'email' => $this->email,
+            'image' => $this->image,
+            'username' => $this->username,
+            'loggedIn' => $this->loggedIn,
+            $this->mergeWhen(
+                $request->routeIs(['users.*']),
+                [
+                    'emailVerifiedAt' => $this->email_verified_at,
+                    'createdAt' => $this->created_at,
+                    'updatedAt' => $this->updated_at,
+                ]
+            ),
             // 'links' => [
             //     'self' => route('users.show', ['user' => $this->id])
             // ]

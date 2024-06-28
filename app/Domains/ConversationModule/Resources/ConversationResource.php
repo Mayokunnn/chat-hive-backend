@@ -18,21 +18,20 @@ class ConversationResource extends JsonResource
         return [
             'type' => 'conversation',
             'id' => $this->id,
-            'attributes' => [
-                'name' => $this->name,
-                'image' => $this->image,
-                $this->mergeWhen(
-                    $request->routeIs(['conversations.*']),
-                    [
-                        'emailVerifiedAt' => $this->email_verified_at,
-                        'createdAt' => $this->created_at,
-                        'updatedAt' => $this->updated_at,
+            'name' => $this->name,
+            'image' => $this->image,
+            $this->mergeWhen(
+                $request->routeIs(['get-user-conversations','get-conversation', 'create-conversation', 'update-conversation']),
+                [
+                    'emailVerifiedAt' => $this->email_verified_at,
+                    'createdAt' => $this->created_at,
+                    'updatedAt' => $this->updated_at,
+                    'includes' => [
+                        'users' => UserResource::collection($this->users)
                     ]
-                )
-            ],
-            'includes' => [
-                'data' => UserResource::collection($this->users)
-             ]
+                ]
+            ),
+
             // 'links' => [
             //     'self' => route('conversations', ['conversation' => $this->id])
             // ]
